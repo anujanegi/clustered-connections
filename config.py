@@ -5,6 +5,7 @@ N_trials = 9
 
 N_exc = 4000
 N_inh = 1000 
+N_cluster = 80
 N_split = 1600
 
 dt = 0.1*ms
@@ -32,7 +33,14 @@ mus = {
     'mu_inh_high': 1.05
     }
 
-J = {
+J_uniform = {
+    'J_EE': 0.024,
+    'J_EI': -0.045,
+    'J_IE': 0.014,
+    'J_II': -0.057,
+    }
+
+J_cluster = {
     'J_EE': 0.024,
     'J_EI': -0.045,
     'J_IE': 0.014,
@@ -47,6 +55,12 @@ P_uniform = {
     'P_II': 0.5
     }
 
+P_cluster = {
+    'p_EE': [0.49988285825849277, 0.1999531433033971],    #[p_in, p_out]
+    'P_EI': 0.5,
+    'P_IE': 0.5,
+    'P_II': 0.5
+    }
 
 equations = '''
         dv/dt = (mu - v)/tau_m + F: 1 (unless refractory)
