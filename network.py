@@ -144,4 +144,4 @@ class CorticalNetwork():
 
             spike_train_realization.append(spike_train_trials)
 
-        return spike_train_realization
+        return state_monitor_excitatory, spike_train_realization
