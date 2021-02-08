@@ -9,6 +9,14 @@ class CorticalNetwork():
         """
         Initialises network parameters.
         :param equations: differential equations defining the network
+        :param N_exc: number of excitatory neurons
+        :param N_inh: number of inhibitory neurons
+        :param V: dictionary of threshold voltage, reset voltage
+        :param taus: dictionary of refractory period, tau_m, tau_1, tau_2 for both exc. and inh. neuron types
+        :param mus: dictionary of mu intervals for both exc. and inh. neuron types
+        :param synaptic_strengths: dictionary of synaptic strengths according to network type
+        :param probabilities: dictionary of probabilities of forming a connection according to network type
+        :param N_cluster: size of a cluster
         :param is_cluster: Boolean to define if the network is clustered or not
         :param method: numerical integration method
         """
@@ -41,18 +49,18 @@ class CorticalNetwork():
     def initialise_neuron_group(self, n_neurons, mu_high, mu_low, tau_m, tau_2, v_threshold=None, v_reset=None, refractory_period=None, tau_1=None, dt='0.1*ms', voltage='rand()'):
         """
         Initialises a group of neurons.
-        : param n_neurons: number of neurons in the group
-        : param v_threshold: voltage threshold value
-        : param v_reset: voltage reset value
-        : param refractory_period: length of the refractory period
-        : param mu_high: Higher limit of mu value
-        : param mu_low: Lower limit of mu value
-        : param tau_m: tau_m value
-        : param tau_1: tau_1 value
-        : param tau_2: tau_2 value
-        : param dt: the time step
-        : param voltage: initial voltage value
-        : return: initialised neuron group
+        :param n_neurons: number of neurons in the group
+        :param mu_high: Higher limit of mu value
+        :param mu_low: Lower limit of mu value
+        :param tau_m: tau_m value
+        :param tau_2: tau_2 value
+        :param v_threshold: voltage threshold value
+        :param v_reset: voltage reset value
+        :param refractory_period: length of the refractory period
+        :param tau_1: tau_1 value
+        :param dt: the time step
+        :param voltage: initial voltage value
+        :return: initialised neuron group
         """
 
         if v_threshold is None: v_threshold=self.v_threshold
@@ -72,11 +80,12 @@ class CorticalNetwork():
     def connect(self, source, destination, synaptic_strength, probability, condition='i!=j'):
         """
         Creates a synaptic connection between neuron groups.
-        : param source: source neuron group
-        : param destination: destination neuron group
-        : param synaptic_strength: synaptic strength to update after every pre-synaptic spike
-        : param probability: probability of forming a connection
-        : param condition: any conditions for forming a connection
+        :param source: source neuron group
+        :param destination: destination neuron group
+        :param synaptic_strength: synaptic strength to update after every pre-synaptic spike
+        :param probability: probability of forming a connection
+        :param condition: string of any conditions for forming a connection
+        :return: defined synapse brian2 object
         """
         
         on_pre_ = 'x_post += %f'%synaptic_strength
@@ -88,6 +97,14 @@ class CorticalNetwork():
     def build_network(self, neuron_group_a, neuron_group_b, synaptic_strengths, probabilities, is_cluster, N_cluster=None, scale_synaptic_strength=1):
         """
         Forms connections between neuron groups based on if or not a cluster
+        :param neuron_group_a: a brian2 NeuronGroup object
+        :param neuron_group_b: a brian2 NeuronGroup object
+        :param synaptic_strengths: dictionary of synaptic strengths according to network type
+        :param probabilities: dictionary of probabilities of forming a connection according to network type
+        :param is_cluster: Boolean to define if the network is clustered or not
+        :param N_cluster: size of a cluster
+        :param scale_synaptic_strength: scaling synaptic strength multiplier factor for clustered network 
+        :return: all connections formed as synapse brian2 objects
         """
         a_in = a_a = a_b = b_a = b_b = None
         ss = list(synaptic_strengths.values())
@@ -109,11 +126,20 @@ class CorticalNetwork():
 
         return a_in, a_a, a_b, b_a, b_b
 
-    def run_network(self, duration_1, duration_2=1, N_realizations=1, N_trials=1,  N_split=1, monitor=True):
+    def run_network(self, duration_1, duration_2=0, N_realizations=1, N_trials=1,  N_split=0, monitor=True):
         """
         Runs a simulation of the network while monitoring(optional) it.
+        :param duration_1: duration of the simulation
+        :param duration_2: duration of the simulation post monitoring begins
+        :param N_realizations: number of realizations of simulation runs
+        :param N_trials: number of trials per realization
+        :param N_split: number of neurons to monitor
+        :param monitor: boolean to choose if variables are to be monitored during simulation
+        :return: brian2 monitored objects and spike trains over all realizations
         """
         spike_train_realization = []
+        state_monitor_excitatory = None
+        spike_monitor_excitatory = None
 
         for realization in range(N_realizations):
             start_scope()
@@ -144,4 +170,4 @@ class CorticalNetwork():
 
             spike_train_realization.append(spike_train_trials)
 
-        return state_monitor_excitatory, spike_train_realization
+        return state_monitor_excitatory, spike_monitor_excitatory, spike_train_realization
