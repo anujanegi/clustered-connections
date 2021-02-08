@@ -3,7 +3,7 @@ import numpy as np
 from brian2 import *
 prefs.codegen.target = "numpy"
 
-class Network():
+class CorticalNetwork():
     
     def __init__(self, equations, N_exc, N_inh, V, taus, mus, synaptic_strengths, probabilities, N_cluster=None, is_cluster=True, method='euler'):
         """
@@ -89,52 +89,57 @@ class Network():
         """
         Forms connections between neuron groups based on if or not a cluster
         """
+        a_in = a_a = a_b = b_a = b_b = None
         ss = list(synaptic_strengths.values())
         p = list(probabilities.values())
 
         if(is_cluster):
             # intra cluster
-            intra_cluster_condition = 'i!=j and (floor(i/N_cluster)==floor(j/N_cluster))'
-            self.connect(neuron_group_a, neuron_group_a, ss[0]*scale_synaptic_strength, p[0][0], intra_cluster_condition)
+            intra_cluster_condition = 'i!=j and (floor(i/%d)==floor(j/%d))'%(N_cluster, N_cluster)
+            a_in = self.connect(neuron_group_a, neuron_group_a, ss[0]*scale_synaptic_strength, p[0][0], intra_cluster_condition)
             # inter cluster
-            inter_cluster_condition = 'i!=j and not (floor(i/N_cluster)==floor(j/N_cluster))'
-            self.connect(neuron_group_a, neuron_group_a, ss[0], p[0][1], inter_cluster_condition)
+            inter_cluster_condition = 'i!=j and not (floor(i/%d)==floor(j/%d))'%(N_cluster, N_cluster)
+            a_a = self.connect(neuron_group_a, neuron_group_a, ss[0], p[0][1], inter_cluster_condition)
         else:
-            self.connect(neuron_group_a, neuron_group_a, ss[0], p[0])
+            a_a = self.connect(neuron_group_a, neuron_group_a, ss[0], p[0])
         
-        self.connect(neuron_group_b, neuron_group_a, ss[1], p[1])
-        self.connect(neuron_group_a, neuron_group_b, ss[2], p[2])
-        self.connect(neuron_group_b, neuron_group_b, ss[3], p[3])
+        a_b = self.connect(neuron_group_b, neuron_group_a, ss[1], p[1])
+        b_a = self.connect(neuron_group_a, neuron_group_b, ss[2], p[2])
+        b_b = self.connect(neuron_group_b, neuron_group_b, ss[3], p[3])
+
+        return a_in, a_a, a_b, b_a, b_b
 
     def run_network(self, duration_1, duration_2=1, N_realizations=1, N_trials=1,  N_split=1, monitor=True):
         """
-        Runs a simulation of the network while monitoring it
+        Runs a simulation of the network while monitoring(optional) it.
         """
-        start_scope()
         spike_train_realization = []
 
         for realization in range(N_realizations):
+            start_scope()
 
             excitatory = self.initialise_neuron_group(n_neurons=self.N_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low, tau_m=self.tau_exc, tau_2=self.tau_2_exc)
             inhibitatory = self.initialise_neuron_group(n_neurons=self.N_inh, mu_high=self.mu_inh_high, mu_low=self.mu_inh_low, tau_m=self.tau_inh, tau_2=self.tau_2_inh)
             if self.is_cluster:
-                self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster, self.N_cluster, self.synaptic_strengths['scale'])
+                a, b, c, d, e =self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster, self.N_cluster, self.synaptic_strengths['scale'])
             else:
-                self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster)
+                _, a, b, c, d = self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster)
 
-            run(duration_1)
+            net = Network(collect())
+            net.run(duration_1)
 
             if monitor:
                 excitatory_split = excitatory[:N_split]
                 state_monitor_excitatory = StateMonitor(excitatory, 'v', record=True)
                 spike_monitor_excitatory = SpikeMonitor(excitatory_split)
+                net.add([state_monitor_excitatory, spike_monitor_excitatory])
             
-            store()
+            net.store()
 
             spike_train_trials = []
             for trial in range(N_trials):
-                restore()
-                run(duration_2)
+                net.restore()
+                net.run(duration_2)
                 spike_train_trials.append(spike_monitor_excitatory.spike_trains())
 
             spike_train_realization.append(spike_train_trials)
