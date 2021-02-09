@@ -27,7 +27,7 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_type='excitatory', n
     :param after_duration: plot begins after this duration
     :param network: type of network (uniform/clustered)
     """
-    index = np.where(state_monitor.t/second > after_duration)[0]
+    index = np.where(spike_monitor.t/second > after_duration)[0]
     plt.figure(figsize=(10,6))
     plt.plot(spike_monitor.t[index], spike_monitor.i[index], '.k', markersize=1)
     plt.xticks(list(xticks()[0]), list(xticks()[0]-after_duration))

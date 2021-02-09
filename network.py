@@ -5,10 +5,10 @@ prefs.codegen.target = "numpy"
 
 class CorticalNetwork():
     
-    def __init__(self, equations, N_exc, N_inh, V, taus, mus, synaptic_strengths, probabilities, N_cluster=None, is_cluster=True, method='euler'):
+    def __init__(self, equation, N_exc, N_inh, V, taus, mus, synaptic_strengths, probabilities, N_cluster=None, is_cluster=True, method='euler'):
         """
         Initialises network parameters.
-        :param equations: differential equations defining the network
+        :param equation: differential equations defining the network
         :param N_exc: number of excitatory neurons
         :param N_inh: number of inhibitory neurons
         :param V: dictionary of threshold voltage, reset voltage
@@ -20,7 +20,7 @@ class CorticalNetwork():
         :param is_cluster: Boolean to define if the network is clustered or not
         :param method: numerical integration method
         """
-        self.equations = equations
+        self.equation = equation
         self.N_exc = N_exc
         self.N_inh = N_inh
         self.N_cluster = N_cluster
@@ -64,7 +64,7 @@ class CorticalNetwork():
         if refractory_period is None: refractory_period=self.refractory_period
         if tau_1 is None: tau_1=self.tau_1
 
-        neuron_group = NeuronGroup(n_neurons, self.equations, threshold='v>%f'%v_threshold, reset='v=%f'%v_reset, refractory=refractory_period, method=self.method)
+        neuron_group = NeuronGroup(n_neurons, self.equation, threshold='v>%f'%v_threshold, reset='v=%f'%v_reset, refractory=refractory_period, method=self.method)
         neuron_group.tau_m = tau_m
         neuron_group.tau_1 = tau_1
         neuron_group.tau_2 = tau_2
@@ -159,7 +159,7 @@ class CorticalNetwork():
 
             if monitor:
                 excitatory_split = excitatory[:N_split]
-                state_monitor_excitatory = StateMonitor(excitatory, 'v', record=True)
+                state_monitor_excitatory = StateMonitor(excitatory_split, 'v', record=True)
                 spike_monitor_excitatory = SpikeMonitor(excitatory_split)
                 net.add([state_monitor_excitatory, spike_monitor_excitatory])
 

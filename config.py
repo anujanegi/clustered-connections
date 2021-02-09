@@ -9,8 +9,7 @@ N_cluster = 80
 N_split = 1600
 
 dt = 0.1*ms
-duration1 = 1.5*second
-duration2 = 2*second
+duration = 3*second
 
 V = {
     'v_threshold': 1.,
@@ -62,12 +61,10 @@ P_cluster = {
     'P_II': 0.5
     }
 
-equations = '''
-        dv/dt = (mu - v)/tau_m + F: 1 (unless refractory)
-        dx/dt = -x/tau_2 : 1
-        dF/dt = ((x/tau_2)-F)/tau_1 : Hz
-        mu : 1
-        tau_m : second
-        tau_1 : second
-        tau_2 : second
-        '''
+equation = """dv/dt = (mu - v)/tau_m + F: 1 (unless refractory)
+dx/dt = -x/tau_2 : 1
+dF/dt = ((x/tau_2)-F)/tau_1 : Hz
+mu : 1
+tau_m : second
+tau_1 : second
+tau_2 : second"""
