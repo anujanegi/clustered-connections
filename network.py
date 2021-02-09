@@ -131,13 +131,12 @@ class CorticalNetwork():
 
         return a_in, a_a, a_b, b_a, b_b
 
-    def run_network(self, duration, N_realizations=1, N_trials=1,  N_split=0, monitor=True):
+    def run_network(self, duration, N_realizations=1, N_trials=1, monitor=True):
         """
         Runs a simulation of the network while monitoring(optional) it.
         :param duration: duration of the simulation
         :param N_realizations: number of realizations of simulation runs
         :param N_trials: number of trials per realization
-        :param N_split: number of neurons to monitor
         :param monitor: boolean to choose if variables are to be monitored during simulation
         :return: brian2 monitored objects and spike trains over all realizations
         """
@@ -158,9 +157,8 @@ class CorticalNetwork():
             net = Network(collect())    
 
             if monitor:
-                excitatory_split = excitatory[:N_split]
-                state_monitor_excitatory = StateMonitor(excitatory_split, 'v', record=True)
-                spike_monitor_excitatory = SpikeMonitor(excitatory_split)
+                state_monitor_excitatory = StateMonitor(excitatory, 'v', record=True)
+                spike_monitor_excitatory = SpikeMonitor(excitatory)
                 net.add([state_monitor_excitatory, spike_monitor_excitatory])
 
             net.store()

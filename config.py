@@ -6,7 +6,6 @@ N_trials = 9
 N_exc = 4000
 N_inh = 1000 
 N_cluster = 80
-N_split = 1600
 
 dt = 0.1*ms
 duration = 3*second
