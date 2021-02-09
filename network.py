@@ -131,11 +131,10 @@ class CorticalNetwork():
 
         return a_in, a_a, a_b, b_a, b_b
 
-    def run_network(self, duration_1, duration_2=0, N_realizations=1, N_trials=1,  N_split=0, monitor=True):
+    def run_network(self, duration, N_realizations=1, N_trials=1,  N_split=0, monitor=True):
         """
         Runs a simulation of the network while monitoring(optional) it.
-        :param duration_1: duration of the simulation
-        :param duration_2: duration of the simulation post monitoring begins
+        :param duration: duration of the simulation
         :param N_realizations: number of realizations of simulation runs
         :param N_trials: number of trials per realization
         :param N_split: number of neurons to monitor
@@ -156,22 +155,24 @@ class CorticalNetwork():
             else:
                 _, a, b, c, d = self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster)
 
-            net = Network(collect())        
-            net.store()
+            net = Network(collect())    
 
+            if monitor:
+                excitatory_split = excitatory[:N_split]
+                state_monitor_excitatory = StateMonitor(excitatory, 'v', record=True)
+                spike_monitor_excitatory = SpikeMonitor(excitatory_split)
+                net.add([state_monitor_excitatory, spike_monitor_excitatory])
+
+            net.store()
+            
             spike_train_trials = []
             for trial in range(N_trials):
                 net.restore()
                 self.initialise_neuron_group(excitatory, self.N_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low)
                 self.initialise_neuron_group(inhibitatory, self.N_inh, mu_high=self.mu_inh_high, mu_low=self.mu_inh_low)
 
-                net.run(duration_1)
-                if monitor:
-                    excitatory_split = excitatory[:N_split]
-                    state_monitor_excitatory = StateMonitor(excitatory, 'v', record=True)
-                    spike_monitor_excitatory = SpikeMonitor(excitatory_split)
-                    net.add([state_monitor_excitatory, spike_monitor_excitatory])
-                net.run(duration_2)
+                net.run(duration)
+                   
                 spike_train_trials.append(spike_monitor_excitatory.spike_trains())
 
             spike_train_realization.append(spike_train_trials)
