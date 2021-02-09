@@ -2,7 +2,7 @@ from brian2 import *
 import matplotlib.pyplot as plt
 import numpy as np
 
-def voltage_trace_plot(state_monitor, after_duration, neuron_type='excitatory', network_type=''):
+def voltage_trace_plot(state_monitor, after_duration, neuron_type='excitatory', network_type='', neuron_index=10):
     """
     Plots the voltage trace of a Neuron.
     :param state_monitor: Brian2 state monitor object of a simulated neuron group
@@ -12,7 +12,7 @@ def voltage_trace_plot(state_monitor, after_duration, neuron_type='excitatory', 
     index = np.where(state_monitor.t/second > after_duration)[0]
 
     plt.figure(figsize=(12,5))
-    plt.plot(state_monitor.t[index], state_monitor.v[0][index])
+    plt.plot(state_monitor.t[index], state_monitor.v[neuron_index][index])
     plt.xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
     plt.yticks([0,1],['-65','-50'])
     plt.xlabel('Time (s)')
