@@ -46,12 +46,14 @@ class CorticalNetwork():
         self.is_cluster = is_cluster
         self.method = method
 
-    def create_neuron_group(self, n_neurons, tau_m, tau_2, v_threshold=None, v_reset=None, refractory_period=None, tau_1=None, dt='0.1*ms'):
+    def create_neuron_group(self, n_neurons, tau_m, tau_2, mu_high, mu_low, v_threshold=None, v_reset=None, refractory_period=None, tau_1=None, dt='0.1*ms'):
         """
         Creates a group of neurons.
         :param n_neurons: number of neurons in the group
         :param tau_m: tau_m value
         :param tau_2: tau_2 value
+        :param mu_high: Higher limit of mu value
+        :param mu_low: Lower limit of mu value
         :param v_threshold: voltage threshold value
         :param v_reset: voltage reset value
         :param refractory_period: length of the refractory period
@@ -65,22 +67,19 @@ class CorticalNetwork():
         if tau_1 is None: tau_1=self.tau_1
 
         neuron_group = NeuronGroup(n_neurons, self.equation, threshold='v>%f'%v_threshold, reset='v=%f'%v_reset, refractory=refractory_period, method=self.method)
+        neuron_group.mu = np.random.uniform(mu_low, mu_high, size=n_neurons)
         neuron_group.tau_m = tau_m
         neuron_group.tau_1 = tau_1
         neuron_group.tau_2 = tau_2
 
         return neuron_group
 
-    def initialise_neuron_group(self, neuron_group, n_neurons, mu_high, mu_low, voltage='rand()'):
+    def initialise_neuron_group(self, neuron_group, voltage='rand()'):
         """
         Initialises a group of neurons.
         :param neuron_group: brian2 neuron group object which is to be initialised
-        :param n_neurons: number of neurons in the group
-        :param mu_high: Higher limit of mu value
-        :param mu_low: Lower limit of mu value
         :param voltage: initial voltage value
-        """
-        neuron_group.mu = np.random.uniform(mu_low, mu_high, size=n_neurons)
+        """ 
         neuron_group.v = voltage
 
     def connect(self, source, destination, synaptic_strength, probability, condition='i!=j'):
@@ -147,8 +146,8 @@ class CorticalNetwork():
         for realization in range(N_realizations):
             start_scope()
 
-            excitatory = self.create_neuron_group(n_neurons=self.N_exc, tau_m=self.tau_exc, tau_2=self.tau_2_exc)
-            inhibitatory = self.create_neuron_group(n_neurons=self.N_inh, tau_m=self.tau_inh, tau_2=self.tau_2_inh)
+            excitatory = self.create_neuron_group(n_neurons=self.N_exc, tau_m=self.tau_exc, tau_2=self.tau_2_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low)
+            inhibitatory = self.create_neuron_group(n_neurons=self.N_inh, tau_m=self.tau_inh, tau_2=self.tau_2_inh, mu_high=self.mu_inh_high, mu_low=self.mu_inh_low)
             if self.is_cluster:
                 a, b, c, d, e =self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster, self.N_cluster, self.synaptic_strengths['scale'])
             else:
@@ -166,8 +165,8 @@ class CorticalNetwork():
             spike_train_trials = []
             for trial in range(N_trials):
                 net.restore()
-                self.initialise_neuron_group(excitatory, self.N_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low)
-                self.initialise_neuron_group(inhibitatory, self.N_inh, mu_high=self.mu_inh_high, mu_low=self.mu_inh_low)
+                self.initialise_neuron_group(excitatory)
+                self.initialise_neuron_group(inhibitatory)
 
                 net.run(duration)
                    
