@@ -20,14 +20,15 @@ def voltage_trace_plot(state_monitor, after_duration, neuron_type='excitatory', 
     plt.title('Voltage trace of an %s neuron in a %s Network'%(neuron_type, network_type))
     plt.show()
 
-def spike_raster_plot(spike_monitor, after_duration, neuron_type='excitatory', network_type=''):
+def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_type='excitatory', network_type=''):
     """
     Plots the spike raster of a neuron group.
     :param state_monitor: Brian2 spike monitor object of a simulated neuron group
     :param after_duration: plot begins after this duration
     :param network: type of network (uniform/clustered)
     """
-    index = np.where(spike_monitor.t/second > after_duration)[0]
+    
+    index = np.logical_and(spike_monitor.t/second > after_duration, spike_monitor.i<neuron_split)
     plt.figure(figsize=(10,6))
     plt.plot(spike_monitor.t[index], spike_monitor.i[index], '.k', markersize=1)
     plt.xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
