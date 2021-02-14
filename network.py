@@ -46,14 +46,14 @@ class CorticalNetwork():
         self.is_cluster = is_cluster
         self.method = method
 
-    def create_neuron_group(self, n_neurons, tau_m, tau_2, mu_high, mu_low, v_threshold=None, v_reset=None, refractory_period=None, tau_1=None, dt='0.1*ms'):
+    def create_neuron_group(self, n_neurons, mu_high, mu_low, tau_m, tau_2, v_threshold=None, v_reset=None, refractory_period=None, tau_1=None, dt='0.1*ms'):
         """
         Creates a group of neurons.
         :param n_neurons: number of neurons in the group
-        :param tau_m: tau_m value
-        :param tau_2: tau_2 value
         :param mu_high: Higher limit of mu value
         :param mu_low: Lower limit of mu value
+        :param tau_m: tau_m value
+        :param tau_2: tau_2 value
         :param v_threshold: voltage threshold value
         :param v_reset: voltage reset value
         :param refractory_period: length of the refractory period
@@ -79,7 +79,7 @@ class CorticalNetwork():
         Initialises a group of neurons.
         :param neuron_group: brian2 neuron group object which is to be initialised
         :param voltage: initial voltage value
-        """ 
+        """
         neuron_group.v = voltage
 
     def connect(self, source, destination, synaptic_strength, probability, condition='i!=j'):
@@ -146,8 +146,8 @@ class CorticalNetwork():
         for realization in range(N_realizations):
             start_scope()
 
-            excitatory = self.create_neuron_group(n_neurons=self.N_exc, tau_m=self.tau_exc, tau_2=self.tau_2_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low)
-            inhibitatory = self.create_neuron_group(n_neurons=self.N_inh, tau_m=self.tau_inh, tau_2=self.tau_2_inh, mu_high=self.mu_inh_high, mu_low=self.mu_inh_low)
+            excitatory = self.create_neuron_group(n_neurons=self.N_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low, tau_m=self.tau_exc, tau_2=self.tau_2_exc)
+            inhibitatory = self.create_neuron_group(n_neurons=self.N_inh, mu_high=self.mu_inh_high, mu_low=self.mu_inh_low, tau_m=self.tau_inh, tau_2=self.tau_2_inh)
             if self.is_cluster:
                 a, b, c, d, e =self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster, self.N_cluster, self.synaptic_strengths['scale'])
             else:
