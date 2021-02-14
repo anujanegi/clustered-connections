@@ -66,10 +66,7 @@ def get_fano_factor(spike_train_realization, after_duration, duration, N_trials,
 
 	return fano_flat
 
-  
-
 def get_fano_factor_windows(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type=''):
-
 	"""
 	Calculate the fano factors for window sizes between 0.025 and 0.2 seconds averaged for the entire set of neuron_type and network_type
 	:param spike_train_realization: Brian2 spike train object in a list for all trials, all realizations and all neurons
@@ -90,6 +87,25 @@ def get_fano_factor_windows(spike_train_realization, after_duration, duration, N
 		
 	return diff_windows, fano_over_windows
 
+def get_spike_train_windowed(spike_train, window_duration=0.05):
+    """
+    Modified the spike train and stores it over a fixed window duration
+    :param spike_train_realization: Brian2 spike train object in a list for all trials, all realizations and all neurons
+    :param window_duration: window size
+    :return: modified spike train
+    """
+    N_windows = int((duration/second - after_duration)/window_duration) #1.5s/50ms
+    windowed_spike_train = np.zeros((N_realizations,N_trials,N_exc, N_windows))
+
+    for nr in range(N_realizations):
+        for nt in range(N_trials):
+            for i in spike_train[nr][nt]:
+                neuron = spike_train[nr][nt][i]
+                for window in range(N_windows):
+                    index = np.logical_and(neuron/second > after_duration+(window*window_duration), neuron/second<after_duration+((window+1)*window_duration))
+                    windowed_spike_train[nr][nt][i][window] = sum(index)
+
+    return windowed_spike_train
 
 
 
