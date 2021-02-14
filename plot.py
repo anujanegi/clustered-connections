@@ -37,3 +37,71 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
     plt.ylabel('Neuron')
     plt.title('Spike raster of %s neurons in a %s Network'%(neuron_type, network_type))
     plt.show()
+    
+def firing_rate_histogram_plot(flat_rates_a,flat_rates_b, color_a='grey',color_b='green', bin_size_a=70, bin_size_b=280):
+	"""
+	Plots the histogram of firing rates.
+	:param flat_rates_histogram: flattened array of counts of firing rates averaged over trials for all realizations for all neurons
+	:param network: type of network (uniform/clustered)
+	:param color: color for the histogram
+	"""
+
+	plt.hist(x=flat_rates_a, bins=bin_size_a, histtype='step', color= color_a, label = 'uniform')
+	plt.hist(x=flat_rates_b, bins=bin_size_b, histtype='step', color= color_b, label = "cluster")
+
+	plt.xlabel('Rate [Hz]',fontsize = 15)
+	plt.ylabel('Count',fontsize = 15)
+	
+	plt.title("Histogram of Firing Rates",fontsize = 15)
+	plt.plot(np.mean(flat_rates_a), plt.ylim()[1]/2, 'v', color = 'black', label='mean uniform')
+	plt.plot(np.mean(flat_rates_b), plt.ylim()[1]/2, 'v', color = 'black', label='mean cluster')
+	
+	plt.legend()
+	plt.show()
+
+
+
+def fano_factor_histogram_plot(fano_flat_a,fano_flat_b, bins_a = 10, bins_b = 10):
+	"""
+	Plots the histogram of fano factors.
+	:param fano_flat: flattened array of counts of fano_factos averaged over trials and 100ms windows for all realizations for all neurons
+	:param network: type of network (uniform/clustered)
+	:param color: color for the histogram
+	"""
+
+
+	plt.hist(x=fano_flat_a, bins=bins_a, histtype='step', color='grey', label = 'uniform')
+	plt.hist(x=fano_flat_b, bins=bins_b, histtype='step', color='green', label = 'cluster')
+	plt.ylabel('Count',fontsize = 15)
+	plt.xlabel('Fano Factors',fontsize = 15)
+	plt.xlim(0,3)
+	plt.title("Histogram of Fano Factos",fontsize = 15)
+	plt.legend()
+	plt.show()  
+	
+
+def fano_factor_windows_plot(diff_windows_a, fano_over_windows_a,fano_over_windows_b):
+	"""
+	Plots fano factors for different window sizes.
+	:param diff_windows: different window sizes used 
+	:param fano_var_size: fano factors for different window sizes
+	:param network: type of network (uniform/clustered)
+	:param color: color for the histogram
+	"""
+
+
+	plt.plot(window,fano_over_windows_a, color='grey', label = 'uniform')
+	plt.plot(window,fano_over_windows_b, color='green', label = 'cluster')
+	plt.ylim(0,2.5)
+	plt.xlim
+	plt.ylabel('Fano Factor',fontsize = 15)
+	plt.xlabel('Window Size [sec]',fontsize = 15)
+	plt.title("Fano Factors for Different Window sizes",fontsize = 15)
+	plt.legend()
+	plt.show()  
+
+
+
+
+
+
