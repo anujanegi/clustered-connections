@@ -87,7 +87,7 @@ def get_fano_factor_windows(spike_train_realization, after_duration, duration, N
 		
 	return diff_windows, fano_over_windows
 
-def get_spike_train_windowed(spike_train, after_duration, duration, N_trials, N_realizations, window_duration=0.05):
+def get_spike_train_windowed(spike_train, after_duration, duration, N_trials, N_realizations, N_exc, window_duration=0.05):
     """
     Modified the spike train and stores it over a fixed window duration
     :param spike_train: Brian2 spike train object in a list for all trials, all realizations and all neurons
