@@ -43,10 +43,12 @@ def get_fano_factor(spike_train_realization, after_duration, duration, N_trials,
 	:return: flattened array of fano factors
 	"""
 	duration_analysis = (duration - after_duration)/second
-	fano_count = np.zeros((N_realizations,N_trials,N_exc))
 
 	number_windows = int(duration_analysis/window_size)
 	windows = np.linspace(after_duration/second,duration/second,number_windows)
+
+	fano_count = np.zeros((N_realizations,N_trials,N_exc, number_windows))
+
 
 	for realization in range(N_realizations):
 		for trial in range(N_trials):
@@ -57,12 +59,16 @@ def get_fano_factor(spike_train_realization, after_duration, duration, N_trials,
 					
 					fano_windows.append(temp_count)
 					
-				np.seterr(divide='ignore',invalid='ignore')			
-				fano_count[realization][trial][neuron] = np.var(np.asarray(fano_windows))/(np.mean(np.asarray(fano_windows)))
+						
+				fano_count[realization][trial][neuron] = np.asarray(fano_windows)
+				
+				
+	np.seterr(divide='ignore',invalid='ignore')			
+	fano_factor = np.var(fano_count,axis=(1,3))/(np.mean(fano_count,axis=(1,3)))
 		
-		
-	mean_fano = np.mean(fano_count,axis=1)
-	fano_flat = mean_fano.flatten()
+	
+#	mean_fano = np.mean(fano_count,axis=1)
+	fano_flat = fano_factor.flatten()
 
 	return fano_flat
 
