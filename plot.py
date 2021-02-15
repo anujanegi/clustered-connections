@@ -97,6 +97,23 @@ def fano_factor_windows_plot(window, fano_over_windows_a, fano_over_windows_b):
     plt.show()  
 
 
+def autocorrelations_plot(autocorr_a,autocorr_b):
+
+	''' 
+	Plots autocorrelations between excitatory neurons for different lags
+	:param autocorr_a: autocorrelation for uniform network
+	:param autocorr_b: autocorrelation for clustered network
+	'''
+
+	plt.plot(range(-100,100),autocorr_a,label='uniform',color='black')
+	plt.plot(range(-100,100),autocorr_b,label='cluster',color='green')
+	plt.xticks([-100,-50,0,50,100],['-200','-100','0','100','200'])
+	plt.xlabel("lag [ms]",fontsize = 15)
+	plt.ylabel("Autocovariance",fontsize = 15)
+	plt.title("Autocovariance function for excitatory neurons",fontsize = 15)
+	plt.ylim(-1e-2,3e-2)
+	plt.legend()
+	plt.show()
 
 
 

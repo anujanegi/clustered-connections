@@ -1,5 +1,6 @@
 from brian2 import *
 import numpy as np
+import pandas as pd
 
 def get_flat_firing_rate(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type=''):
 
@@ -118,9 +119,34 @@ def get_spike_train_windowed(spike_train, after_duration, duration, N_trials, N_
     return windowed_spike_train
 
 
+def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 
+	'''
+	Get average autocorrelation for a windowed spike train with lags between -200 and 200 ms (-100 * window size = 2ms) 
+	:param windowed_spike_train: Windowed spike train in 2ms windows
+	:param N_realizations: number of realizations
+	:param N_trials: number os trials per realizations
+	:param N_exc: number of excitatory neurons in the network
+	:return: autocorrelation 
+	'''
+	
+	autocorrelation = []
+	
+	for realization in range(N_realizations):
+		for trial in range(N_trials):
+			for neuron in range(N_exc): 
+				neuron_autocorrelation = []
+				for lag in range(-100,100):            
+					s = pd.Series(windowed_spike_train[realization][trial][neuron])
+					neuron_autocorrelation.append(s.autocorr(lag = lag))
+            
+				autocorrelation.append(neuron_autocorrelation)
+				
 
-
-
+	autocorrelation = np.asarray(autocorrelation,dtype=double)
+	acorr = np.nanmean(autocorrelation,axis=0)
+	
+	return acorr
+	
 
 
