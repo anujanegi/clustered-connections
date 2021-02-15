@@ -96,7 +96,16 @@ def fano_factor_windows_plot(window, fano_over_windows_a, fano_over_windows_b):
     plt.legend()
     plt.show()  
 
-
+def fano_factor_over_ree_plot(fano_ree_avg, r_ee):
+    #print(fano_Ree)
+#    print(fano_Ree_avg)
+    plt.scatter(r_ee,fano_ree_avg)
+    plt.xlabel("Ree", fontsize = 15)
+    plt.ylabel("fano-factor", fontsize = 15)
+    plt.ylim(0,7)
+    plt.title("Fano Factor for different R_ee", fontsize = 15)
+#    plt.legend()
+    plt.show()
 
 
 

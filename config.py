@@ -13,6 +13,7 @@ N_cluster = 80
 
 dt = 0.1*ms
 duration = 3*second
+after_duration=1.5*second
 
 V = {
     'v_threshold': 1.,

@@ -1,7 +1,8 @@
 import setuptools
 import numpy as np
 from brian2 import *
-prefs.codegen.target = "numpy"
+from tqdm.notebook import tqdm
+prefs.codegen.target = "auto"
 
 class CorticalNetwork():
     
@@ -143,7 +144,7 @@ class CorticalNetwork():
         state_monitor_excitatory = None
         spike_monitor_excitatory = None
 
-        for realization in range(N_realizations):
+        for realization in tqdm(range(N_realizations), leave=False, desc = "Realization: "):
             start_scope()
 
             excitatory = self.create_neuron_group(n_neurons=self.N_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low, tau_m=self.tau_exc, tau_2=self.tau_2_exc)
@@ -163,7 +164,7 @@ class CorticalNetwork():
             net.store()
             
             spike_train_trials = []
-            for trial in range(N_trials):
+            for trial in tqdm(range(N_trials), leave = False, desc="Trial: "):
                 net.restore()
                 self.initialise_neuron_group(excitatory)
                 self.initialise_neuron_group(inhibitatory)
