@@ -1,5 +1,6 @@
 from brian2 import *
 import numpy as np
+import pandas as pd
 
 def get_flat_firing_rate(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type=''):
 
@@ -43,10 +44,12 @@ def get_fano_factor(spike_train_realization, after_duration, duration, N_trials,
 	:return: flattened array of fano factors
 	"""
 	duration_analysis = (duration - after_duration)/second
-	fano_count = np.zeros((N_realizations,N_trials,N_exc))
 
 	number_windows = int(duration_analysis/window_size)
 	windows = np.linspace(after_duration/second,duration/second,number_windows)
+
+	fano_count = np.zeros((N_realizations,N_trials,N_exc, number_windows))
+
 
 	for realization in range(N_realizations):
 		for trial in range(N_trials):
@@ -57,12 +60,16 @@ def get_fano_factor(spike_train_realization, after_duration, duration, N_trials,
 					
 					fano_windows.append(temp_count)
 					
-				np.seterr(divide='ignore',invalid='ignore')			
-				fano_count[realization][trial][neuron] = np.var(np.asarray(fano_windows))/(np.mean(np.asarray(fano_windows)))
+						
+				fano_count[realization][trial][neuron] = np.asarray(fano_windows)
+				
+				
+	np.seterr(divide='ignore',invalid='ignore')			
+	fano_factor = np.var(fano_count,axis=(1,3))/(np.mean(fano_count,axis=(1,3)))
 		
-		
-	mean_fano = np.mean(fano_count,axis=1)
-	fano_flat = mean_fano.flatten()
+	
+#	mean_fano = np.mean(fano_count,axis=1)
+	fano_flat = fano_factor.flatten()
 
 	return fano_flat
 
@@ -83,7 +90,7 @@ def get_fano_factor_windows(spike_train_realization, after_duration, duration, N
 
 	for window_size in diff_windows:
 		temp_fano = get_fano_factor(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type='', window_size = window_size )		
-		fano_over_windows.append(np.mean(np.nan_to_num(temp_fano)))
+		fano_over_windows.append(np.nanmean(temp_fano))
 		
 	return diff_windows, fano_over_windows
 
@@ -112,9 +119,34 @@ def get_spike_train_windowed(spike_train, after_duration, duration, N_trials, N_
     return windowed_spike_train
 
 
+def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 
+	'''
+	Get average autocorrelation for a windowed spike train with lags between -200 and 200 ms (-100 * window size = 2ms) 
+	:param windowed_spike_train: Windowed spike train in 2ms windows
+	:param N_realizations: number of realizations
+	:param N_trials: number os trials per realizations
+	:param N_exc: number of excitatory neurons in the network
+	:return: autocorrelation 
+	'''
+	
+	autocorrelation = []
+	
+	for realization in range(N_realizations):
+		for trial in range(N_trials):
+			for neuron in range(N_exc): 
+				neuron_autocorrelation = []
+				for lag in range(-100,100):            
+					s = pd.Series(windowed_spike_train[realization][trial][neuron])
+					neuron_autocorrelation.append(s.autocorr(lag = lag))
+            
+				autocorrelation.append(neuron_autocorrelation)
+				
 
-
-
+	autocorrelation = np.asarray(autocorrelation,dtype=double)
+	acorr = np.nanmean(autocorrelation,axis=0)
+	
+	return acorr
+	
 
 
