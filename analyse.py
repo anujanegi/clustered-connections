@@ -118,14 +118,14 @@ def get_spike_train_windowed(spike_train, after_duration, duration, N_trials, N_
     return windowed_spike_train
 
 def calculate_p_EE(R_EE, p_total, N_total, N_in):
-	"""
-	Calculates the p_EE for a clustered network from a given R_EE and the total connection probability
-	:param R_EE: Factor of connection probability inside a cluster per probability of connection outside cluster
-	:param p_total: overall connection probability over whole network
-	:param N_total: total amount of neurons
-	:param N_in: amount of neurons inside a cluster
-	:return: [p_inside, p_out]: array of connection probabilites inside and outside of clusters
-	"""
+    """
+    Calculates the p_EE for a clustered network from a given R_EE and the total connection probability
+    :param R_EE: Factor of connection probability inside a cluster per probability of connection outside cluster
+    :param p_total: overall connection probability over whole network
+    :param N_total: total amount of neurons
+    :param N_in: amount of neurons inside a cluster
+    :return: [p_inside, p_out]: array of connection probabilites inside and outside of clusters
+    """
     p_out = p_total*N_total / (N_in*(R_EE-1) + N_total)
     return [p_out*R_EE, p_out] 
 
