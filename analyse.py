@@ -120,16 +120,14 @@ def get_spike_train_windowed(spike_train, after_duration, duration, N_trials, N_
 
 
 def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
-
-	'''
+	"""
 	Get average autocorrelation for a windowed spike train with lags between -200 and 200 ms (-100 * window size = 2ms) 
 	:param windowed_spike_train: Windowed spike train in 2ms windows
 	:param N_realizations: number of realizations
 	:param N_trials: number os trials per realizations
 	:param N_exc: number of excitatory neurons in the network
 	:return: autocorrelation 
-	'''
-	
+	"""
 	autocorrelation = []
 	
 	for realization in range(N_realizations):
@@ -147,6 +145,27 @@ def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 	acorr = np.nanmean(autocorrelation,axis=0)
 	
 	return acorr
-	
+
+def get_correlation(spike_train, N_realizations, N_trials, N_exc):
+	"""
+	Calculates the coorelation between all pairs of excitatory neurons in a spike train
+	:param spike_train: spike train of neurons
+	:param N_realizations: number of realizations
+	:param N_trials: number os trials per realizations
+	:param N_exc: number of excitatory neurons in the network
+	:return: correlation array for all pairs of excitatory neurons over all trials and realisations
+	"""
+    correlation_coeff = np.ndarray((N_realizations,N_trials,N_exc, N_exc))
+    for nr in range(N_realizations):
+        for nt in range(N_trials):
+            for i, _ in enumerate(spike_train[nr][nt]):
+                for j, _ in enumerate(spike_train[nr][nt]):
+                    if(j<=i):
+                        corr_temp = np.corrcoef(spike_train[nr][nt][i], spike_train[nr][nt][j], rowvar=False)[0][1]
+                        correlation_coeff[nr][nt][i][j] = corr_temp
+                        correlation_coeff[nr][nt][j][j] = corr_temp
+						
+    return correlation_coeff
+
 
 
