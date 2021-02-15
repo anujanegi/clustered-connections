@@ -129,7 +129,46 @@ def calculate_p_EE(R_EE, p_total, N_total, N_in):
     p_out = p_total*N_total / (N_in*(R_EE-1) + N_total)
     return [p_out*R_EE, p_out] 
 
+def get_fano_factor_over_time(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type='', window_size = 0.1 ):
 
+	"""
+	Calculates the flattened array of counts of fano factors for each neuron averaged over trials and windows of window_size in all realizations 
+	:param spike_train_realization: Brian2 spike train object in a list for all trials, all realizations and all neurons
+	:param after_duration: count begins after this duration in seconds
+	:param duration: duration of the whole simulation in seconds
+	:param N_realizations: number of realizations of simulation runs
+	:param N_trials: number of trials per realization
+	:param N_exc: number of excitatory neurons
+	:param network: type of network (uniform/clustered)
+	:param window_size: window size used to calculate the fano factors in seconds
+	:return: array of fano factors (dim = realizations, neurons, time-windows)
+	"""
+	duration_analysis = (duration - after_duration)/second
+
+	number_windows = int(duration_analysis/window_size)
+	windows = np.linspace(after_duration/second,duration/second,number_windows)
+
+	fano_count = np.zeros((N_realizations,N_trials,N_exc, number_windows))
+
+
+	for realization in range(N_realizations):
+		for trial in range(N_trials):
+			for neuron in spike_train_realization[realization][trial]:
+				fano_windows = []
+				for window in windows:
+					temp_count = np.sum(np.logical_and(spike_train_realization[realization][trial][neuron]/second > window \
+													  ,spike_train_realization[realization][trial][neuron]/second < (window +window_size)))
+					fano_windows.append(temp_count)
+				fano_count[realization][trial][neuron] = np.asarray(fano_windows)
+				
+				
+	np.seterr(divide='ignore',invalid='ignore')			
+	fano_factor = np.var(fano_count,axis=(0,1,2))/(np.mean(fano_count,axis=(0,1,2)))
+	print(fano_factor)
+	
+#	mean_fano = np.mean(fano_count,axis=1)
+
+	return fano_factor
 
 
 

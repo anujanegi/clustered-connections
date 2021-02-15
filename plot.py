@@ -20,12 +20,13 @@ def voltage_trace_plot(state_monitor, after_duration, neuron_type='excitatory', 
     plt.title('Voltage trace of an %s neuron in a %s Network'%(neuron_type, network_type))
     plt.show()
 
-def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_type='excitatory', network_type=''):
+def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_type='excitatory', network_type='', grey = 0):
     """
     Plots the spike raster of a neuron group.
     :param state_monitor: Brian2 spike monitor object of a simulated neuron group
     :param after_duration: plot begins after this duration
     :param network: type of network (uniform/clustered)
+    :param grey: if not zero, colors the bottom grey Neurons with grey background
     """
     
     index = np.logical_and(spike_monitor.t/second > after_duration, spike_monitor.i<neuron_split)
@@ -36,6 +37,8 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
     plt.xlabel('Time (s)')
     plt.ylabel('Neuron')
     plt.title('Spike raster of %s neurons in a %s Network'%(neuron_type, network_type))
+    if grey != 0:
+        plt.axhspan(0, grey, facecolor='0.2', alpha=0.1)
     plt.show()
     
 def firing_rate_histogram_plot(flat_rates_a,flat_rates_b, color_a='grey',color_b='green', bin_size_a=70, bin_size_b=280):
