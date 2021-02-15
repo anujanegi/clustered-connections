@@ -90,7 +90,7 @@ def get_fano_factor_windows(spike_train_realization, after_duration, duration, N
 
 	for window_size in diff_windows:
 		temp_fano = get_fano_factor(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type='', window_size = window_size )		
-		fano_over_windows.append(np.mean(np.nan_to_num(temp_fano)))
+		fano_over_windows.append(np.nanmean(temp_fano))
 		
 	return diff_windows, fano_over_windows
 
