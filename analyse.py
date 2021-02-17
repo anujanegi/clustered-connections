@@ -155,17 +155,18 @@ def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 	:param N_exc: number of excitatory neurons in the network
 	:return: correlation array for all pairs of excitatory neurons over all trials and realisations
 	"""
-    correlation_coeff = np.ndarray((N_realizations,N_trials,N_exc, N_exc))
-    for nr in range(N_realizations):
-        for nt in range(N_trials):
-            for i, _ in enumerate(spike_train[nr][nt]):
-                for j, _ in enumerate(spike_train[nr][nt]):
-                    if(j<=i):
-                        corr_temp = np.corrcoef(spike_train[nr][nt][i], spike_train[nr][nt][j], rowvar=False)[0][1]
-                        correlation_coeff[nr][nt][i][j] = corr_temp
-                        correlation_coeff[nr][nt][j][j] = corr_temp
+	np.seterr(divide='ignore',invalid='ignore')
+	correlation_coeff = np.ndarray((N_realizations,N_trials,N_exc, N_exc))
+	for nr in range(N_realizations):
+		for nt in range(N_trials):
+			for i, _ in enumerate(spike_train[nr][nt]):
+				for j, _ in enumerate(spike_train[nr][nt]):
+					if(j<=i):
+						corr_temp = np.corrcoef(spike_train[nr][nt][i], spike_train[nr][nt][j], rowvar=False)[0][1]
+						correlation_coeff[nr][nt][i][j] = corr_temp
+						correlation_coeff[nr][nt][j][j] = corr_temp
 						
-    return correlation_coeff
+	return correlation_coeff
 
 
 
