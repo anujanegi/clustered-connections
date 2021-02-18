@@ -183,7 +183,6 @@ def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, 
 
 	return neurons_crosscor
 	
-=======
 
 def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 	"""
@@ -206,6 +205,5 @@ def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 						
     return correlation_coeff
 
->>>>>>> c5939c5af1bb79c97f4b15cf394fce13f4256d2b
 
 
