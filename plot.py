@@ -136,5 +136,18 @@ def histogram_correlation(correlation_a, correlation_b, type=''):
 
 
 
+def crosscorrelations_plot(cross_correlation_a, cross_correlation_b ):
+	''' 
+	Plots crosscorrelations between neuron pairs belonging to the same cluster for lags in range (-200,200) ms
+	:param cross_correlation_a: crosscorrelation for uniform network
+	:param cross_correlation_b: crosscorrelation for clustered network
+	'''
+
+
+	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_a,axis=0)[550:950],label='uniform')
+	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_b,axis=0)[550:950],label='cluster')
+	plt.legend()
+	plt.show()
+
 
 
