@@ -164,7 +164,7 @@ def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 					if(j<=i):
 						corr_temp = np.corrcoef(spike_train[nr][nt][i], spike_train[nr][nt][j], rowvar=False)[0][1]
 						correlation_coeff[nr][nt][i][j] = corr_temp
-						correlation_coeff[nr][nt][j][j] = corr_temp
+						correlation_coeff[nr][nt][j][i] = corr_temp
 						
 	return correlation_coeff
 

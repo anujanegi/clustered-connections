@@ -114,12 +114,13 @@ def autocorrelations_plot(autocorr_a,autocorr_b):
 	plt.legend()
 	plt.show()
 
-def histogram_correlation_all_pairs(correlation_a, correlation_b):
+def histogram_correlation(correlation_a, correlation_b, type=''):
     """
 	Plots mean correlation over trials, between all pairs excitatory neurons
 	:param autocorr_a: autocorrelation array for uniform network
 	:param autocorr_b: autocorrelation array for clustered network
 	"""
+    np.seterr(divide='ignore',invalid='ignore')
     flat_a = np.nanmean(correlation_a, axis=1).flatten()
     flat_b = np.nanmean(correlation_b, axis=1).flatten()
     plt.hist(x=flat_a, bins=30, histtype='step', color='black')
@@ -128,7 +129,7 @@ def histogram_correlation_all_pairs(correlation_a, correlation_b):
     plt.plot(np.nanmean(flat_b),plt.ylim()[1]/1.01, 'v', color = 'green', label='mean cluster')
     plt.ylabel('Count')
     plt.xlabel('Correlation(all pairs)')
-    plt.title("Histogram of Correlation Coefficients over all excitatory neuron pairs")
+    plt.title("Histogram of Correlation Coefficients over %s excitatory neuron pairs"%type)
     plt.xlim(-0.5,0.5)
     plt.legend()
     plt.show()  
