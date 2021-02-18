@@ -145,7 +145,7 @@ def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 	acorr = np.nanmean(autocorrelation,axis=0)
 	
 	return acorr
-<<<<<<< HEAD
+
 	
 def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, N_cluster, network_type='', save = True):
 	'''
