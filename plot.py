@@ -98,12 +98,11 @@ def fano_factor_windows_plot(window, fano_over_windows_a, fano_over_windows_b):
 
 
 def autocorrelations_plot(autocorr_a,autocorr_b):
-
-	''' 
+	"""
 	Plots autocorrelations between excitatory neurons for different lags
 	:param autocorr_a: autocorrelation for uniform network
 	:param autocorr_b: autocorrelation for clustered network
-	'''
+	"""
 
 	plt.plot(range(-100,100),autocorr_a,label='uniform',color='black')
 	plt.plot(range(-100,100),autocorr_b,label='cluster',color='green')
@@ -114,6 +113,26 @@ def autocorrelations_plot(autocorr_a,autocorr_b):
 	plt.ylim(-1e-2,3e-2)
 	plt.legend()
 	plt.show()
+
+def histogram_correlation_all_pairs(correlation_a, correlation_b):
+    """
+	Plots mean correlation over trials, between all pairs excitatory neurons
+	:param autocorr_a: autocorrelation array for uniform network
+	:param autocorr_b: autocorrelation array for clustered network
+	"""
+    flat_a = np.nanmean(correlation_a, axis=1).flatten()
+    flat_b = np.nanmean(correlation_b, axis=1).flatten()
+    plt.hist(x=flat_a, bins=30, histtype='step', color='black')
+    plt.hist(x=flat_b, bins=30, histtype='step', color='green')
+    plt.plot(np.nanmean(flat_a), plt.ylim()[1], 'v', color = 'black', label='mean uniform')
+    plt.plot(np.nanmean(flat_b),plt.ylim()[1]/1.01, 'v', color = 'green', label='mean cluster')
+    plt.ylabel('Count')
+    plt.xlabel('Correlation(all pairs)')
+    plt.title("Histogram of Correlation Coefficients over all excitatory neuron pairs")
+    plt.xlim(-0.5,0.5)
+    plt.legend()
+    plt.show()  
+
 
 
 def crosscorrelations_plot(cross_correlation_a, cross_correlation_b ):

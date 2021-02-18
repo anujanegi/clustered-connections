@@ -1,7 +1,7 @@
 import setuptools
 import numpy as np
 from brian2 import *
-prefs.codegen.target = "numpy"
+prefs.codegen.target = "cython"
 
 class CorticalNetwork():
     
