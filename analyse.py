@@ -148,7 +148,7 @@ def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 
 	
 def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, N_cluster, network_type='', save = True):
-	'''
+	"""
 	Get crosscorrelation functions between neuron pairs belonging to the same cluster for a windowed spike train and saves it in a file named "neurons_crosscor_%f %network type"
 	:param windowed_spike_train: Windowed spike train in 2ms windows
 	:param N_realizations: number of realizations
@@ -157,8 +157,7 @@ def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, 
 	:param N_cluster: number of neurons inside one cluster
 	:param network_type: type of network (uniform/clustered) 
 	:return: crosscorrelation arrays
-	'''
-	
+	"""
 	n_clusters = int(N_exc/N_cluster)
 	if save:
 		file_name = './data/neurons_crosscor_%s.pkl'%network_type	
@@ -166,23 +165,23 @@ def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, 
 		
 	for realization in range(N_realizations):
 		for trial in range(N_trials):
-		    neurons_crosscor = []
-		    for cluster in range(n_clusters):
-		        for neuron_a in range((int(cluster*cluster_size)),int((cluster+1)*cluster_size)):   
-		            for neuron_b in range((int(cluster*cluster_size)),int((cluster+1)*cluster_size)):
-		                
-		                if neuron_a < neuron_b:            
-		                    a = np.asarray(windowed_uniform[realization][trial][neuron_a])
-		                    b = np.asarray(windowed_uniform[realization][trial][neuron_b])
-		                    neurons_crosscor.append(np.correlate(a,b,"full")) 
-		                    
-		    if save:
+			neurons_crosscor = []
+			for cluster in range(n_clusters):
+				for neuron_a in range((int(cluster*cluster_size)),int((cluster+1)*cluster_size)):   
+					for neuron_b in range((int(cluster*cluster_size)),int((cluster+1)*cluster_size)):
+						
+						if neuron_a < neuron_b:            
+							a = np.asarray(windowed_uniform[realization][trial][neuron_a])
+							b = np.asarray(windowed_uniform[realization][trial][neuron_b])
+							neurons_crosscor.append(np.correlate(a,b,"full")) 
+							
+			if save:
 				temp = open(file_name, 'ab')
 				pickle.dump(neurons_crosscor, temp) 
 
 
 	return neurons_crosscor
-	
+
 
 def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 	"""
