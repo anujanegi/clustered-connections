@@ -20,7 +20,7 @@ def voltage_trace_plot(state_monitor, after_duration, neuron_type='excitatory', 
     plt.title('Voltage trace of an %s neuron in a %s Network'%(neuron_type, network_type))
     plt.show()
 
-def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_type='excitatory', network_type='', grey = 0):
+def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_type='excitatory', network_type='', grey = 0, stim_begin=0, stim_end = 0):
     """
     Plots the spike raster of a neuron group.
     :param state_monitor: Brian2 spike monitor object of a simulated neuron group
@@ -28,17 +28,27 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
     :param network: type of network (uniform/clustered)
     :param grey: if not zero, colors the bottom grey Neurons with grey background
     """
-    
+
+    fig, (ax0, ax1) = plt.subplots(2,1,figsize=(10,6), gridspec_kw={'height_ratios':[5,1]})
     index = np.logical_and(spike_monitor.t/second > after_duration, spike_monitor.i<neuron_split)
-    plt.figure(figsize=(10,6))
-    plt.plot(spike_monitor.t[index], spike_monitor.i[index], '.k', markersize=1)
-    plt.xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
-    plt.yticks([])
-    plt.xlabel('Time (s)')
-    plt.ylabel('Neuron')
-    plt.title('Spike raster of %s neurons in a %s Network'%(neuron_type, network_type))
+    ax0.plot(spike_monitor.t[index], spike_monitor.i[index], '.k', markersize=1)
+#   ax0.set_xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
+    ax0.set_yticks([])
+    ax0.set_xticks([])
+    ax0.set_ylabel('Neuron')
+    ax0.set_title('Spike raster of %s neurons in a %s Network'%(neuron_type, network_type))
     if grey != 0:
-        plt.axhspan(0, grey, facecolor='0.2', alpha=0.1)
+        ax0.axhspan(0, grey, facecolor='0.2', alpha=0.1)
+        end_time = np.max(spike_monitor.t[index])
+        begin_time = np.min(spike_monitor.t[index])
+        print(begin_time)
+        x = np.linspace(begin_time, end_time, 1000)
+        y = np.zeros(len(x))
+        y[np.logical_and(x>(stim_begin+after_duration)*second , x < (stim_end+after_duration)*second)] = 1
+        ax1.plot(x,y)
+        ax1.set_yticks([])
+        ax1.set_ylabel("Stim")
+    plt.xlabel('Time (s)')
     plt.show()
     
 def firing_rate_histogram_plot(flat_rates_a,flat_rates_b, color_a='grey',color_b='green', bin_size_a=70, bin_size_b=280):

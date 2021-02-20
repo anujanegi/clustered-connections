@@ -129,7 +129,7 @@ def calculate_p_EE(R_EE, p_total, N_total, N_in):
     p_out = p_total*N_total / (N_in*(R_EE-1) + N_total)
     return [p_out*R_EE, p_out] 
 
-def get_fano_factor_over_time(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type='', window_size = 0.1 ):
+def get_fano_factor_over_time(spike_train_realization, after_duration, duration, N_cluster, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type='', window_size = 0.1 ):
 
 	"""
 	Calculates the flattened array of counts of fano factors for each neuron averaged over trials and windows of window_size in all realizations 
@@ -162,13 +162,18 @@ def get_fano_factor_over_time(spike_train_realization, after_duration, duration,
 				fano_count[realization][trial][neuron] = np.asarray(fano_windows)
 				
 				
-	np.seterr(divide='ignore',invalid='ignore')			
-	fano_factor = np.var(fano_count,axis=(0,1,2))/(np.mean(fano_count,axis=(0,1,2)))
-	print(fano_factor)
-	
-#	mean_fano = np.mean(fano_count,axis=1)
+	np.seterr(divide='ignore',invalid='ignore')
+	fano_factor_time = np.zeros((N_exc//N_cluster,number_windows))
+	 # calculate fano factor for each neuron, realization, time window (), averaging over trials
+	fano_factor = np.var(fano_count, axis = 1)/np.mean(fano_count, axis = 1)
+	"""	for c in range(N_exc//N_cluster):
+		# Calculate Fano-Factor for one cluster
+		fano_count_cluster = fano_count[:,:,c*N_cluster:(c+1)*N_cluster-1,:]
+		fano_factor = np.var(fano_count_cluster, axis = (1))/np.mean(fano_count_cluster, axis = (1))
+		fano_factor_time[c,:] = np.nanmean(fano_factor, axis = 0)
+#	print(fano_factor_time)"""
 
-	return fano_factor
+	return np.nanmean(fano_factor,axis=(0,1)) # average over realizations and neurons
 
 
 
