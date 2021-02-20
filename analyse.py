@@ -1,5 +1,6 @@
 from brian2 import *
 import numpy as np
+from tqdm.notebook import tqdm
 
 def get_flat_firing_rate(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type=''):
 
@@ -146,21 +147,14 @@ def get_fano_factor_over_time(spike_train_realization, after_duration, duration,
 	duration_analysis = (duration - after_duration)/second
 
 	number_windows = int(duration_analysis/window_size)
-	windows = np.linspace(after_duration/second,duration/second,number_windows)
+	windows = np.linspace(after_duration/second,duration/second,number_windows+1)
 
 	fano_count = np.zeros((N_realizations,N_trials,N_exc, number_windows))
 
-
-	for realization in range(N_realizations):
+	for realization in tqdm(range(N_realizations)):
 		for trial in range(N_trials):
 			for neuron in spike_train_realization[realization][trial]:
-				fano_windows = []
-				for window in windows:
-					temp_count = np.sum(np.logical_and(spike_train_realization[realization][trial][neuron]/second > window \
-													  ,spike_train_realization[realization][trial][neuron]/second < (window +window_size)))
-					fano_windows.append(temp_count)
-				fano_count[realization][trial][neuron] = np.asarray(fano_windows)
-				
+				fano_count[realization][trial][neuron], _ = np.histogram(spike_train_realization[realization][trial][neuron]/second, bins = windows)
 				
 	np.seterr(divide='ignore',invalid='ignore')
 	fano_factor_time = np.zeros((N_exc//N_cluster,number_windows))

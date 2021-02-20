@@ -32,7 +32,6 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
     fig, (ax0, ax1) = plt.subplots(2,1,figsize=(10,6), gridspec_kw={'height_ratios':[5,1]})
     index = np.logical_and(spike_monitor.t/second > after_duration, spike_monitor.i<neuron_split)
     ax0.plot(spike_monitor.t[index], spike_monitor.i[index], '.k', markersize=1)
-#   ax0.set_xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
     ax0.set_yticks([])
     ax0.set_xticks([])
     ax0.set_ylabel('Neuron')
@@ -45,9 +44,10 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
         x = np.linspace(begin_time, end_time, 1000)
         y = np.zeros(len(x))
         y[np.logical_and(x>(stim_begin+after_duration)*second , x < (stim_end+after_duration)*second)] = 1
-        ax1.plot(x,y)
-        ax1.set_yticks([])
+        ax1.plot(x-after_duration*second,y)
+#        ax0.set_xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
         ax1.set_ylabel("Stim")
+        ax1.set_yticks([])
     plt.xlabel('Time (s)')
     plt.show()
     
