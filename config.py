@@ -35,6 +35,7 @@ mus = {
     'mu_inh_low': 1.,
     'mu_inh_high': 1.05
     }
+mu_increase = 0.07
 
 J_uniform = {
     'J_EE': 0.024,

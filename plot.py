@@ -30,7 +30,7 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
     """
 
     fig, (ax0, ax1) = plt.subplots(2,1,figsize=(10,6), gridspec_kw={'height_ratios':[5,1]})
-    index = np.logical_and(spike_monitor.t/second > after_duration, spike_monitor.i<neuron_split)
+    index = np.logical_and(spike_monitor.t > after_duration, spike_monitor.i<neuron_split)
     ax0.plot(spike_monitor.t[index], spike_monitor.i[index], '.k', markersize=1)
     ax0.set_yticks([])
     ax0.set_xticks([])
@@ -40,11 +40,10 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
         ax0.axhspan(0, grey, facecolor='0.2', alpha=0.1)
         end_time = np.max(spike_monitor.t[index])
         begin_time = np.min(spike_monitor.t[index])
-        print(begin_time)
         x = np.linspace(begin_time, end_time, 1000)
         y = np.zeros(len(x))
-        y[np.logical_and(x>(stim_begin+after_duration)*second , x < (stim_end+after_duration)*second)] = 1
-        ax1.plot(x-after_duration*second,y)
+        y[np.logical_and(x>(stim_begin+after_duration) , x < (stim_end+after_duration))] = 1
+        ax1.plot(x-after_duration,y)
 #        ax0.set_xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
         ax1.set_ylabel("Stim")
         ax1.set_yticks([])
@@ -120,6 +119,23 @@ def fano_factor_over_ree_plot(fano_ree_avg, r_ee):
 #    plt.legend()
     plt.show()
 
-
+def fano_factor_over_time_plot(fano_over_time_all, fano_over_time_stim, fano_over_time_no_stim):
+    fig, axs = plt.subplots(1)
+    x = np.linspace(0,2.4, len(fano_over_time_all))
+    axs.plot(x, fano_over_time_all)
+    axs.set_title("Fano Factor over time for all neurons")
+    axs.set_xlabel("time in seconds")
+    axs.set_ylabel("fano factor")
+    
+    fig, axs = plt.subplots(1,2, figsize = (12,5))
+    x = np.linspace(0,2.4, len(fano_over_time_all))
+    axs[0].plot(x, fano_over_time_stim)
+    axs[0].set_title("Fano Factor over time for stimulated neurons")
+    axs[0].set_xlabel("time in seconds")
+    axs[0].set_ylabel("fano factor")
+    axs[1].plot(x, fano_over_time_no_stim)
+    axs[1].set_title("Fano Factor over time for non-stimulated neurons")
+    axs[1].set_xlabel("time in seconds")
+    axs[1].set_ylabel("fano factor")
 
 

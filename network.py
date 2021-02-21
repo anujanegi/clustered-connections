@@ -220,7 +220,6 @@ class CorticalNetwork():
                 self.initialise_neuron_group(inhibitatory)
 
                 net.run(duration1)
-
                 excitatory.mu[:delta_N] = excitatory.mu[:delta_N] + delta_mu
                 net.run(duration2)
                 excitatory.mu[:delta_N] = excitatory.mu[:delta_N] - delta_mu
