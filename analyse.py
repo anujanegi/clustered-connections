@@ -1,6 +1,7 @@
 from brian2 import *
 import numpy as np
 from tqdm.notebook import tqdm
+import pandas as pd
 
 def get_flat_firing_rate(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type=''):
 
@@ -90,7 +91,7 @@ def get_fano_factor_windows(spike_train_realization, after_duration, duration, N
 
 	for window_size in diff_windows:
 		temp_fano = get_fano_factor(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type='', window_size = window_size )		
-		fano_over_windows.append(np.mean(np.nan_to_num(temp_fano)))
+		fano_over_windows.append(np.nanmean(temp_fano))
 		
 	return diff_windows, fano_over_windows
 
@@ -172,6 +173,93 @@ def get_fano_factor_over_time(spike_train_realization, after_duration, duration,
 
 	return np.nanmean(fano_factor,axis=(0,1)) # average over realizations and neurons
 
+	
+def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
+	"""
+	Get average autocorrelation for a windowed spike train with lags between -200 and 200 ms (-100 * window size = 2ms) 
+	:param windowed_spike_train: Windowed spike train in 2ms windows
+	:param N_realizations: number of realizations
+	:param N_trials: number os trials per realizations
+	:param N_exc: number of excitatory neurons in the network
+	:return: autocorrelation 
+	"""
+	autocorrelation = []
+	
+	for realization in range(N_realizations):
+		for trial in range(N_trials):
+			for neuron in range(N_exc): 
+				neuron_autocorrelation = []
+				for lag in range(-100,100):            
+					s = pd.Series(windowed_spike_train[realization][trial][neuron])
+					neuron_autocorrelation.append(s.autocorr(lag = lag))
+            
+				autocorrelation.append(neuron_autocorrelation)
+				
+
+	autocorrelation = np.asarray(autocorrelation,dtype=double)
+	acorr = np.nanmean(autocorrelation,axis=0)
+	
+	return acorr
+
+	
+def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, N_cluster, network_type='', save = True):
+	'''
+	Get crosscorrelation functions between neuron pairs belonging to the same cluster for a windowed spike train and saves it in a file named "neurons_crosscor_%f %network type"
+	:param windowed_spike_train: Windowed spike train in 2ms windows
+	:param N_realizations: number of realizations
+	:param N_trials: number os trials per realizations
+	:param N_exc: number of excitatory neurons in the network
+	:param N_cluster: number of neurons inside one cluster
+	:param network_type: type of network (uniform/clustered) 
+	:return: crosscorrelation arrays
+	'''
+	
+	n_clusters = int(N_exc/N_cluster)
+	if save:
+		file_name = './data/neurons_crosscor_%s.pkl'%network_type	
+		temp = open(file_name, 'wb')
+		
+	for realization in range(N_realizations):
+		for trial in range(N_trials):
+		    neurons_crosscor = []
+		    for cluster in range(n_clusters):
+		        for neuron_a in range((int(cluster*cluster_size)),int((cluster+1)*cluster_size)):   
+		            for neuron_b in range((int(cluster*cluster_size)),int((cluster+1)*cluster_size)):
+		                
+		                if neuron_a < neuron_b:            
+		                    a = np.asarray(windowed_uniform[realization][trial][neuron_a])
+		                    b = np.asarray(windowed_uniform[realization][trial][neuron_b])
+		                    neurons_crosscor.append(np.correlate(a,b,"full")) 
+		                    
+		    if save:
+				temp = open(file_name, 'ab')
+				pickle.dump(neurons_crosscor, temp) 
+
+
+	return neurons_crosscor
+	
+
+def get_correlation(spike_train, N_realizations, N_trials, N_exc):
+	"""
+	Calculates the coorelation between all pairs of excitatory neurons in a spike train
+	:param spike_train: spike train of neurons
+	:param N_realizations: number of realizations
+	:param N_trials: number os trials per realizations
+	:param N_exc: number of excitatory neurons in the network
+	:return: correlation array for all pairs of excitatory neurons over all trials and realisations
+	"""
+	np.seterr(divide='ignore',invalid='ignore')
+	correlation_coeff = np.ndarray((N_realizations,N_trials,N_exc, N_exc))
+	for nr in range(N_realizations):
+		for nt in range(N_trials):
+			for i, _ in enumerate(spike_train[nr][nt]):
+				for j, _ in enumerate(spike_train[nr][nt]):
+					if(j<=i):
+						corr_temp = np.corrcoef(spike_train[nr][nt][i], spike_train[nr][nt][j], rowvar=False)[0][1]
+						correlation_coeff[nr][nt][i][j] = corr_temp
+						correlation_coeff[nr][nt][j][i] = corr_temp
+						
+	return correlation_coeff
 
 
 

@@ -137,5 +137,58 @@ def fano_factor_over_time_plot(fano_over_time_all, fano_over_time_stim, fano_ove
     axs[1].set_title("Fano Factor over time for non-stimulated neurons")
     axs[1].set_xlabel("time in seconds")
     axs[1].set_ylabel("fano factor")
+    
+def autocorrelations_plot(autocorr_a,autocorr_b):
+	"""
+	Plots autocorrelations between excitatory neurons for different lags
+	:param autocorr_a: autocorrelation for uniform network
+	:param autocorr_b: autocorrelation for clustered network
+	"""
+
+	plt.plot(range(-100,100),autocorr_a,label='uniform',color='black')
+	plt.plot(range(-100,100),autocorr_b,label='cluster',color='green')
+	plt.xticks([-100,-50,0,50,100],['-200','-100','0','100','200'])
+	plt.xlabel("lag [ms]",fontsize = 15)
+	plt.ylabel("Autocovariance",fontsize = 15)
+	plt.title("Autocovariance function for excitatory neurons",fontsize = 15)
+	plt.ylim(-1e-2,3e-2)
+	plt.legend()
+	plt.show()
+
+def histogram_correlation(correlation_a, correlation_b, type=''):
+    """
+	Plots mean correlation over trials, between all pairs excitatory neurons
+	:param autocorr_a: autocorrelation array for uniform network
+	:param autocorr_b: autocorrelation array for clustered network
+	"""
+    np.seterr(divide='ignore',invalid='ignore')
+    flat_a = np.nanmean(correlation_a, axis=1).flatten()
+    flat_b = np.nanmean(correlation_b, axis=1).flatten()
+    plt.hist(x=flat_a, bins=30, histtype='step', color='black')
+    plt.hist(x=flat_b, bins=30, histtype='step', color='green')
+    plt.plot(np.nanmean(flat_a), plt.ylim()[1], 'v', color = 'black', label='mean uniform')
+    plt.plot(np.nanmean(flat_b),plt.ylim()[1]/1.01, 'v', color = 'green', label='mean cluster')
+    plt.ylabel('Count')
+    plt.xlabel('Correlation(all pairs)')
+    plt.title("Histogram of Correlation Coefficients over %s excitatory neuron pairs"%type)
+    plt.xlim(-0.5,0.5)
+    plt.legend()
+    plt.show()  
+
+
+
+def crosscorrelations_plot(cross_correlation_a, cross_correlation_b ):
+	''' 
+	Plots crosscorrelations between neuron pairs belonging to the same cluster for lags in range (-200,200) ms
+	:param cross_correlation_a: crosscorrelation for uniform network
+	:param cross_correlation_b: crosscorrelation for clustered network
+	'''
+
+
+	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_a,axis=0)[550:950],label='uniform')
+	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_b,axis=0)[550:950],label='cluster')
+	plt.legend()
+	plt.show()
+
 
 
