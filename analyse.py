@@ -185,7 +185,7 @@ def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, 
 
 def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 	"""
-	Calculates the coorelation between all pairs of excitatory neurons in a spike train
+	Calculates the correlation between all pairs of excitatory neurons in a spike train
 	:param spike_train: spike train of neurons
 	:param N_realizations: number of realizations
 	:param N_trials: number os trials per realizations
@@ -205,5 +205,21 @@ def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 						
 	return correlation_coeff
 
-
+def modify_correlation_clusters(correlation_matrix, N_realizations, N_trials, N_exc, N_cluster):
+	"""
+	Modifies the correlation matrix to between only clusters
+	:param correlation_matrix: correlation matrix
+	:param N_realizations: number of realizations
+	:param N_trials: number os trials per realizations
+	:param N_exc: number of excitatory neurons in the network
+	:param N_cluster: number of neurons in a cluster
+	:return: modified correlation array for all pairs of excitatory neurons over all trials and realisations
+	"""
+    for realization in range(N_realizations):
+        for trial in range(N_trials):
+            for i in range(N_exc):
+                for j in range(N_exc):
+                    if(j<=i and i!=j and (floor(i/N_cluster)==floor(N_cluster))):
+                        correlation_matrix[realization][trial][i][j] = float('nan')
+    return correlation_matrix
 
