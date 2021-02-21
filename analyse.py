@@ -1,5 +1,6 @@
 from brian2 import *
 import numpy as np
+from tqdm.notebook import tqdm
 import pandas as pd
 
 def get_flat_firing_rate(spike_train_realization, after_duration, duration, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type=''):
@@ -118,7 +119,61 @@ def get_spike_train_windowed(spike_train, after_duration, duration, N_trials, N_
 
     return windowed_spike_train
 
+def calculate_p_EE(R_EE, p_total, N_total, N_in):
+    """
+    Calculates the p_EE for a clustered network from a given R_EE and the total connection probability
+    :param R_EE: Factor of connection probability inside a cluster per probability of connection outside cluster
+    :param p_total: overall connection probability over whole network
+    :param N_total: total amount of neurons
+    :param N_in: amount of neurons inside a cluster
+    :return: [p_inside, p_out]: array of connection probabilites inside and outside of clusters
+    """
+    p_out = p_total*N_total / (N_in*(R_EE-1) + N_total)
+    return [p_out*R_EE, p_out] 
 
+def get_fano_factor_over_time(spike_train_realization, after_duration, duration, N_cluster, N_trials, N_realizations, N_exc,  neuron_type='excitatory', network_type='', window_size = 0.1, begin_after = 0, end_before = None):
+
+	"""
+	Calculates the fano factors for each window averaged over trials in all realizations and neurons 
+	:param spike_train_realization: Brian2 spike train object in a list for all trials, all realizations and all neurons
+	:param after_duration: count begins after this duration in seconds
+	:param duration: duration of the whole simulation in seconds
+	:param N:cluster: size of a Cluster
+	:param N_realizations: number of realizations of simulation runs
+	:param N_trials: number of trials per realization
+	:param N_exc: number of excitatory neurons
+	:param network: type of network (uniform/clustered)
+	:param window_size: window size used to calculate the fano factors in seconds
+	:param begin_after: first neuron to be included
+	:param end_before: first neuron to no longer be included
+	:return: array of fano factors (dim = realizations, neurons, time-windows)
+	"""
+	if end_before is None:
+		end_before = N_exc
+	duration_analysis = (duration - after_duration)/second
+
+	number_windows = int(duration_analysis/window_size)
+	windows = np.linspace(after_duration/second,duration/second,number_windows+1)
+
+	fano_count = np.zeros((N_realizations,N_trials,N_exc, number_windows))
+
+	for realization in tqdm(range(N_realizations)):
+		for trial in range(N_trials):
+			i = 0
+			for neuron in spike_train_realization[realization][trial]:
+				if neuron < begin_after or neuron >= end_before:
+					continue
+				fano_count[realization][trial][i], _ = np.histogram(spike_train_realization[realization][trial][neuron]/second, bins = windows)
+				i = i+1
+				
+	np.seterr(divide='ignore',invalid='ignore')
+	fano_factor_time = np.zeros((N_exc//N_cluster,number_windows))
+	 # calculate fano factor for each neuron, realization, time window (), averaging over trials
+	fano_factor = np.var(fano_count, axis = 1)/np.mean(fano_count, axis = 1)
+
+	return np.nanmean(fano_factor,axis=(0,1)) # average over realizations and neurons
+
+	
 def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 	"""
 	Get average autocorrelation for a windowed spike train with lags between -200 and 200 ms (-100 * window size = 2ms) 

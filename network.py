@@ -1,7 +1,8 @@
 import setuptools
 import numpy as np
 from brian2 import *
-prefs.codegen.target = "cython"
+from tqdm.notebook import tqdm
+prefs.codegen.target = "auto"
 
 class CorticalNetwork():
     
@@ -143,7 +144,7 @@ class CorticalNetwork():
         state_monitor_excitatory = None
         spike_monitor_excitatory = None
 
-        for realization in range(N_realizations):
+        for realization in tqdm(range(N_realizations), leave=False, desc = "Realization: "):
             start_scope()
 
             excitatory = self.create_neuron_group(n_neurons=self.N_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low, tau_m=self.tau_exc, tau_2=self.tau_2_exc)
@@ -163,7 +164,7 @@ class CorticalNetwork():
             net.store()
             
             spike_train_trials = []
-            for trial in range(N_trials):
+            for trial in tqdm(range(N_trials), leave = False, desc="Trial: "):
                 net.restore()
                 self.initialise_neuron_group(excitatory)
                 self.initialise_neuron_group(inhibitatory)
@@ -175,3 +176,60 @@ class CorticalNetwork():
             spike_train_realization.append(spike_train_trials)
 
         return state_monitor_excitatory, spike_monitor_excitatory, spike_train_realization
+
+    def multi_run_network(self, duration1, duration2, duration3, delta_mu, delta_N, N_realizations=1, N_trials=1, monitor=True):
+        """
+        Runs a simulation of the network while monitoring(optional) it.
+        :param duration1: duration of the simulation before the increase of mu
+        :param duration2: duration of increase of mu
+        :param duration3: duration of the simulation after the increase of mu
+        :param delta_mu: amount by which mu is increased
+        :param delta_N: amount of Neurons of which mu is increased
+        :param N_realizations: number of realizations of simulation runs
+        :param N_trials: number of trials per realization
+        :param monitor: boolean to choose if variables are to be monitored during simulation
+        :return: brian2 monitored objects and spike trains over all realizations
+        """
+        spike_train_realization = []
+        state_monitor_excitatory = None
+        spike_monitor_excitatory = None
+
+        for realization in tqdm(range(N_realizations), leave=False, desc = "Realization: "):
+            start_scope()
+
+            excitatory = self.create_neuron_group(n_neurons=self.N_exc, mu_high=self.mu_exc_high, mu_low=self.mu_exc_low, tau_m=self.tau_exc, tau_2=self.tau_2_exc)
+            inhibitatory = self.create_neuron_group(n_neurons=self.N_inh, mu_high=self.mu_inh_high, mu_low=self.mu_inh_low, tau_m=self.tau_inh, tau_2=self.tau_2_inh)
+            if self.is_cluster:
+                a, b, c, d, e =self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster, self.N_cluster, self.synaptic_strengths['scale'])
+            else:
+                _, a, b, c, d = self.build_network(excitatory, inhibitatory, self.synaptic_strengths, self.probabilities, self.is_cluster)
+
+            net = Network(collect())    
+
+            if monitor:
+                state_monitor_excitatory = StateMonitor(excitatory, 'v', record=True)
+                spike_monitor_excitatory = SpikeMonitor(excitatory)
+                net.add([state_monitor_excitatory, spike_monitor_excitatory])
+
+            net.store()
+            
+            spike_train_trials = []
+            for trial in tqdm(range(N_trials), leave = False, desc="Trial: "):
+                net.restore()
+                self.initialise_neuron_group(excitatory)
+                self.initialise_neuron_group(inhibitatory)
+
+                net.run(duration1)
+                excitatory.mu[:delta_N] = excitatory.mu[:delta_N] + delta_mu
+                net.run(duration2)
+                excitatory.mu[:delta_N] = excitatory.mu[:delta_N] - delta_mu
+                net.run(duration3)
+
+                   
+                spike_train_trials.append(spike_monitor_excitatory.spike_trains())
+
+            spike_train_realization.append(spike_train_trials)
+
+        return state_monitor_excitatory, spike_monitor_excitatory, spike_train_realization
+
+

@@ -3,12 +3,17 @@ from brian2.units import *
 N_realizations = 12
 N_trials = 9
 
+# reduced amount for calculations over different R_ee
+N_realizations_Ree = 1
+N_trials_Ree = 9
+
 N_exc = 4000
 N_inh = 1000 
 N_cluster = 80
 
 dt = 0.1*ms
 duration = 3*second
+after_duration=1.5*second
 
 V = {
     'v_threshold': 1.,
@@ -30,6 +35,7 @@ mus = {
     'mu_inh_low': 1.,
     'mu_inh_high': 1.05
     }
+mu_increase = 0.07
 
 J_uniform = {
     'J_EE': 0.024,
