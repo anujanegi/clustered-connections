@@ -224,10 +224,8 @@ class CorticalNetwork():
                 net.run(duration2)
                 excitatory.mu[:delta_N] = excitatory.mu[:delta_N] - delta_mu
                 net.run(duration3)
-
                    
                 spike_train_trials.append(spike_monitor_excitatory.spike_trains())
-
             spike_train_realization.append(spike_train_trials)
 
         return state_monitor_excitatory, spike_monitor_excitatory, spike_train_realization
