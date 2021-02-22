@@ -174,16 +174,22 @@ def get_fano_factor_over_time(spike_train_realization, after_duration, duration,
 	return np.nanmean(fano_factor,axis=(0,1)) # average over realizations and neurons
 
 	
-def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
+def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc, network_type='',save= True):
 	"""
 	Get average autocorrelation for a windowed spike train with lags between -200 and 200 ms (-100 * window size = 2ms) 
 	:param windowed_spike_train: Windowed spike train in 2ms windows
 	:param N_realizations: number of realizations
 	:param N_trials: number os trials per realizations
 	:param N_exc: number of excitatory neurons in the network
+	:param network_type: type of network (uniform/clustered) 
+	:param save: if should save the data to a pickle file 
 	:return: autocorrelation 
 	"""
 	autocorrelation = []
+	if save:
+		file_name = './data/neurons_autocorr_%s.pkl'%network_type	
+		temp = open(file_name, 'wb')
+
 	
 	for realization in range(N_realizations):
 		for trial in range(N_trials):
@@ -194,6 +200,11 @@ def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 					neuron_autocorrelation.append(s.autocorr(lag = lag))
             
 				autocorrelation.append(neuron_autocorrelation)
+		
+			if save:
+				temp = open(file_name, 'ab')
+				pickle.dump(autocorrelation, temp) 
+
 				
 
 	autocorrelation = np.asarray(autocorrelation,dtype=double)
@@ -202,22 +213,24 @@ def get_autocorrelation(windowed_spike_train,N_realizations,N_trials, N_exc):
 	return acorr
 
 	
-def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, N_cluster, network_type='', save = True):
-	"""
+def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, cluster_size, network_type='', save = True):
+	'''
 	Get crosscorrelation functions between neuron pairs belonging to the same cluster for a windowed spike train and saves it in a file named "neurons_crosscor_%f %network type"
 	:param windowed_spike_train: Windowed spike train in 2ms windows
 	:param N_realizations: number of realizations
 	:param N_trials: number os trials per realizations
 	:param N_exc: number of excitatory neurons in the network
-	:param N_cluster: number of neurons inside one cluster
+	:param cluster_size: number of neurons inside one cluster
 	:param network_type: type of network (uniform/clustered) 
+	:param save: if should save the data to a pickle file
 	:return: crosscorrelation arrays
-	"""
-	n_clusters = int(N_exc/N_cluster)
+	'''
+	
+	n_clusters = int(N_exc/cluster_size)
 	if save:
 		file_name = './data/neurons_crosscor_%s.pkl'%network_type	
 		temp = open(file_name, 'wb')
-		
+	
 	for realization in range(N_realizations):
 		for trial in range(N_trials):
 			neurons_crosscor = []
@@ -226,10 +239,10 @@ def get_crosscorrelation(windowed_spike_train, N_realizations, N_trials, N_exc, 
 					for neuron_b in range((int(cluster*cluster_size)),int((cluster+1)*cluster_size)):
 						
 						if neuron_a < neuron_b:            
-							a = np.asarray(windowed_uniform[realization][trial][neuron_a])
-							b = np.asarray(windowed_uniform[realization][trial][neuron_b])
+							a = np.asarray(windowed_spike_train[realization][trial][neuron_a])
+							b = np.asarray(windowed_spike_train[realization][trial][neuron_b])
 							neurons_crosscor.append(np.correlate(a,b,"full")) 
-							
+			
 			if save:
 				temp = open(file_name, 'ab')
 				pickle.dump(neurons_crosscor, temp) 
