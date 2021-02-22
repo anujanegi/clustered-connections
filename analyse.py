@@ -249,6 +249,7 @@ def get_correlation(spike_train, N_realizations, N_trials, N_exc):
 	"""
 	np.seterr(divide='ignore',invalid='ignore')
 	correlation_coeff = np.ndarray((N_realizations,N_trials,N_exc, N_exc))
+	correlation_coeff.fill(numpy.nan)
 	for nr in range(N_realizations):
 		for nt in range(N_trials):
 			for i, _ in enumerate(spike_train[nr][nt]):
@@ -270,11 +271,11 @@ def modify_correlation_clusters(correlation_matrix, N_realizations, N_trials, N_
 	:param N_cluster: number of neurons in a cluster
 	:return: modified correlation array for all pairs of excitatory neurons over all trials and realisations
 	"""
-    for realization in range(N_realizations):
-        for trial in range(N_trials):
-            for i in range(N_exc):
-                for j in range(N_exc):
-                    if(j<=i and i!=j and (floor(i/N_cluster)==floor(N_cluster))):
-                        correlation_matrix[realization][trial][i][j] = float('nan')
-    return correlation_matrix
+	for realization in range(N_realizations):
+		for trial in range(N_trials):
+			for i in range(N_exc):
+				for j in range(N_exc):
+					if(j<=i and i!=j and (floor(i/N_cluster)==floor(N_cluster))):
+						correlation_matrix[realization][trial][i][j] = np.nan
+	return correlation_matrix
 
