@@ -44,7 +44,6 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
         y = np.zeros(len(x))
         y[np.logical_and(x>(stim_begin+after_duration) , x < (stim_end+after_duration))] = 1
         ax1.plot(x-after_duration,y)
-#        ax0.set_xticks(list(xticks()[0]), list(xticks()[0]-after_duration))
         ax1.set_ylabel("Stim")
         ax1.set_yticks([])
     plt.xlabel('Time (s)')
@@ -96,8 +95,6 @@ def fano_factor_windows_plot(window, fano_over_windows_a, fano_over_windows_b):
     :param network: type of network (uniform/clustered)
     :param color: color for the histogram
     """
-
-
     plt.plot(window,fano_over_windows_a, color='grey', label = 'uniform')
     plt.plot(window,fano_over_windows_b, color='green', label = 'cluster')
     plt.ylim(0,2.5)
@@ -108,43 +105,12 @@ def fano_factor_windows_plot(window, fano_over_windows_a, fano_over_windows_b):
     plt.legend()
     plt.show()  
 
-def fano_factor_over_ree_plot(fano_ree_avg, r_ee):
-    #print(fano_Ree)
-#    print(fano_Ree_avg)
-    plt.scatter(r_ee,fano_ree_avg)
-    plt.xlabel("Ree", fontsize = 15)
-    plt.ylabel("fano-factor", fontsize = 15)
-    plt.ylim(0,7)
-    plt.title("Fano Factor for different R_ee", fontsize = 15)
-#    plt.legend()
-    plt.show()
-
-def fano_factor_over_time_plot(fano_over_time_all, fano_over_time_stim, fano_over_time_no_stim):
-    fig, axs = plt.subplots(1)
-    x = np.linspace(0,2.4, len(fano_over_time_all))
-    axs.plot(x, fano_over_time_all)
-    axs.set_title("Fano Factor over time for all neurons")
-    axs.set_xlabel("time in seconds")
-    axs.set_ylabel("fano factor")
-    
-    fig, axs = plt.subplots(1,2, figsize = (12,5))
-    x = np.linspace(0,2.4, len(fano_over_time_all))
-    axs[0].plot(x, fano_over_time_stim)
-    axs[0].set_title("Fano Factor over time for stimulated neurons")
-    axs[0].set_xlabel("time in seconds")
-    axs[0].set_ylabel("fano factor")
-    axs[1].plot(x, fano_over_time_no_stim)
-    axs[1].set_title("Fano Factor over time for non-stimulated neurons")
-    axs[1].set_xlabel("time in seconds")
-    axs[1].set_ylabel("fano factor")
-    
 def autocorrelations_plot(autocorr_a,autocorr_b):
 	"""
 	Plots autocorrelations between excitatory neurons for different lags
 	:param autocorr_a: autocorrelation for uniform network
 	:param autocorr_b: autocorrelation for clustered network
 	"""
-
 	plt.plot(range(-100,100),autocorr_a,label='uniform',color='black')
 	plt.plot(range(-100,100),autocorr_b,label='cluster',color='green')
 	plt.xticks([-100,-50,0,50,100],['-200','-100','0','100','200'])
@@ -175,19 +141,42 @@ def histogram_correlation(correlation_a, correlation_b, type=''):
     plt.legend()
     plt.show()  
 
-
-
 def crosscorrelations_plot(cross_correlation_a, cross_correlation_b ):
 	''' 
 	Plots crosscorrelations between neuron pairs belonging to the same cluster for lags in range (-200,200) ms
 	:param cross_correlation_a: crosscorrelation for uniform network
 	:param cross_correlation_b: crosscorrelation for clustered network
 	'''
-
 	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_a,axis=0)[550:950],label='uniform')
 	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_b,axis=0)[550:950],label='cluster')
 	plt.legend()
 	plt.show()
 
+def fano_factor_over_ree_plot(fano_ree_avg, r_ee):
+    plt.scatter(r_ee,fano_ree_avg)
+    plt.xlabel("Ree", fontsize = 15)
+    plt.ylabel("fano-factor", fontsize = 15)
+    plt.ylim(0,7)
+    plt.title("Fano Factor for different R_ee", fontsize = 15)
+    plt.show()
 
+def fano_factor_over_time_plot(fano_over_time_all, fano_over_time_stim, fano_over_time_no_stim):
+    fig, axs = plt.subplots(1)
+    x = np.linspace(0,2.4, len(fano_over_time_all))
+    axs.plot(x, fano_over_time_all)
+    axs.set_title("Fano Factor over time for all neurons")
+    axs.set_xlabel("time in seconds")
+    axs.set_ylabel("fano factor")
+    
+    fig, axs = plt.subplots(1,2, figsize = (12,5))
+    x = np.linspace(0,2.4, len(fano_over_time_all))
+    axs[0].plot(x, fano_over_time_stim)
+    axs[0].set_title("Fano Factor over time for stimulated neurons")
+    axs[0].set_xlabel("time in seconds")
+    axs[0].set_ylabel("fano factor")
+    axs[1].plot(x, fano_over_time_no_stim)
+    axs[1].set_title("Fano Factor over time for non-stimulated neurons")
+    axs[1].set_xlabel("time in seconds")
+    axs[1].set_ylabel("fano factor")
+    
 
