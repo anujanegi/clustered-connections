@@ -54,7 +54,7 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
     plt.xlabel('Time (s)')
     plt.show()
     
-def firing_rate_histogram_plot(flat_rates_a,flat_rates_b, color_a='grey',color_b='green', bin_size_a=70, bin_size_b=280):
+def firing_rate_histogram_plot(flat_rates_a,flat_rates_b, color_a='black',color_b='green', bin_size_a=70, bin_size_b=280):
     """
     Plots the histogram of firing rates.
     :param flat_rates_histogram: flattened array of counts of firing rates averaged over trials for all realizations for all neurons
@@ -73,6 +73,8 @@ def firing_rate_histogram_plot(flat_rates_a,flat_rates_b, color_a='grey',color_b
 
     plt.xlim(0,10)
     plt.legend()
+    plt.ticklabel_format(axis="y", style="sci",scilimits=(0,0))
+    plt.savefig("./Figures/Firing_rate_histogram.png", dpi = 150, facecolor='white', edgecolor='white')
     plt.show()
 
 def fano_factor_histogram_plot(fano_flat_a,fano_flat_b, bins_a = 10, bins_b = 10):
@@ -82,13 +84,17 @@ def fano_factor_histogram_plot(fano_flat_a,fano_flat_b, bins_a = 10, bins_b = 10
     :param network: type of network (uniform/clustered)
     :param color: color for the histogram
     """
-    plt.hist(x=fano_flat_a, bins=bins_a, histtype='step', color='grey', label = 'uniform')
-    plt.hist(x=fano_flat_b, bins=bins_b, histtype='step', color='green', label = 'cluster')
+    plt.hist(x=fano_flat_a, bins=bins_a, histtype='step', color='black')
+    plt.hist(x=fano_flat_b, bins=bins_b, histtype='step', color='green')
+    plt.plot(np.nanmean(fano_flat_a), plt.ylim()[1]/2, 'v', color = 'black', label='mean uniform')
+    plt.plot(np.nanmean(fano_flat_b), plt.ylim()[1]/2, 'v', color = 'green', label='mean cluster')
     plt.ylabel('Count',fontsize = 15)
     plt.xlabel('Fano Factors',fontsize = 15)
     plt.xlim(0,3)
-    plt.title("Histogram of Fano Factos",fontsize = 15)
+    plt.title("Histogram of Fano Factor",fontsize = 15)
+    plt.ticklabel_format(axis="y", style="sci",scilimits=(0,0))
     plt.legend()
+    plt.savefig("./Figures/Fano_factor_histogram.png", dpi = 150, facecolor='white', edgecolor='white')
     plt.show()  
 
 
@@ -100,15 +106,20 @@ def fano_factor_windows_plot(window, fano_over_windows_a, fano_over_windows_b):
     :param network: type of network (uniform/clustered)
     :param color: color for the histogram
     """
-    plt.plot(window,fano_over_windows_a, color='grey', label = 'uniform')
-    plt.plot(window,fano_over_windows_b, color='green', label = 'cluster')
+
+
+    plt.plot(window,fano_over_windows_a, color='black', label = 'uniform',marker = "o")
+    plt.plot(window,fano_over_windows_b, color='green', label = 'cluster',marker = "o")
     plt.ylim(0,2.5)
     plt.xlim
     plt.ylabel('Fano Factor',fontsize = 15)
     plt.xlabel('Window Size [sec]',fontsize = 15)
     plt.title("Fano Factors for Different Window sizes",fontsize = 15)
+    plt.ticklabel_format(axis="y", style="sci",scilimits=(0,0))
     plt.legend()
+    plt.savefig("./Figures/Fano_factor_windows.png", dpi = 150, facecolor='white', edgecolor='white')
     plt.show()  
+
 
 def autocorrelations_plot(autocorr_a,autocorr_b):
 	"""
@@ -116,6 +127,7 @@ def autocorrelations_plot(autocorr_a,autocorr_b):
 	:param autocorr_a: autocorrelation for uniform network
 	:param autocorr_b: autocorrelation for clustered network
 	"""
+
 	plt.plot(range(-100,100),autocorr_a,label='uniform',color='black')
 	plt.plot(range(-100,100),autocorr_b,label='cluster',color='green')
 	plt.xticks([-100,-50,0,50,100],['-200','-100','0','100','200'])
@@ -124,6 +136,8 @@ def autocorrelations_plot(autocorr_a,autocorr_b):
 	plt.title("Autocovariance function for excitatory neurons",fontsize = 15)
 	plt.ylim(-1e-2,3e-2)
 	plt.legend()
+	plt.ticklabel_format(axis="y", style="sci",scilimits=(0,0))
+	plt.savefig("./Figures/auto_correlations.png", dpi = 150, facecolor='white', edgecolor='white')
 	plt.show()
 
 def histogram_correlation(correlation_a, correlation_b, type=''):
@@ -152,9 +166,16 @@ def crosscorrelations_plot(cross_correlation_a, cross_correlation_b ):
 	:param cross_correlation_a: crosscorrelation for uniform network
 	:param cross_correlation_b: crosscorrelation for clustered network
 	'''
-	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_a,axis=0)[550:950],label='uniform')
-	plt.plot(np.arange(-200,200,1),np.mean(cross_correlation_b,axis=0)[550:950],label='cluster')
+
+
+	plt.plot(np.arange(-200,200,2),np.mean(cross_correlation_a,axis=0)[650:850],label='uniform', color = 'black')
+	plt.plot(np.arange(-200,200,2),np.mean(cross_correlation_b,axis=0)[650:850],label='cluster', color = 'green')
+	plt.title("Cross covariance function for excitatory neurons",fontsize=15)
+	plt.xlabel("lag [ms]",fontsize=15)
+	plt.ylabel("Cross covariance",fontsize=15)
+	plt.ticklabel_format(axis="y", style="sci",scilimits=(0,0))
 	plt.legend()
+	plt.savefig("./Figures/cross_correlations.png", dpi = 150, facecolor='white', edgecolor='white')
 	plt.show()
 
 def fano_factor_over_ree_plot(fano_ree_avg, r_ee):
