@@ -28,14 +28,18 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
     :param network: type of network (uniform/clustered)
     :param grey: if not zero, colors the bottom grey Neurons with grey background
     """
+    if  grey!=0:
+        fig, (ax0, ax1) = plt.subplots(2,1,figsize=(10,6), gridspec_kw={'height_ratios':[5,1]})
+    else:
+        fig, ax0 = plt.subplots(figsize=(10,6))
 
-    fig, (ax0, ax1) = plt.subplots(2,1,figsize=(10,6), gridspec_kw={'height_ratios':[5,1]})
     index = np.logical_and(spike_monitor.t > after_duration, spike_monitor.i<neuron_split)
     ax0.plot(spike_monitor.t[index], spike_monitor.i[index], '.k', markersize=1)
     ax0.set_yticks([])
     ax0.set_xticks([])
     ax0.set_ylabel('Neuron')
     ax0.set_title('Spike raster of %s neurons in a %s Network'%(neuron_type, network_type))
+
     if grey != 0:
         ax0.axhspan(0, grey, facecolor='0.2', alpha=0.1)
         end_time = np.max(spike_monitor.t[index])
@@ -46,6 +50,7 @@ def spike_raster_plot(spike_monitor, after_duration, neuron_split=1600, neuron_t
         ax1.plot(x-after_duration,y)
         ax1.set_ylabel("Stim")
         ax1.set_yticks([])
+        
     plt.xlabel('Time (s)')
     plt.show()
     
